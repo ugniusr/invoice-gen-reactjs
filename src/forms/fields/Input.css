@@ -1,0 +1,6 @@
+.form-floating label {
+  line-height: 1.5em;
+  max-height: 2.5em !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
