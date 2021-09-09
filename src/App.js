@@ -15,10 +15,9 @@ function App() {
       {/** EXTRACT INTO A FORM-SECTION COMPONENT */}
       <Container className="p-4 mx-0">
         <Row>
-          <Col>
+          <Col className="col-md-auto">
             <InvoiceGeneratingForm title="Įveskite sąskaitos-faktūros duomenis" />
           </Col>
-          <Col></Col>
         </Row>
       </Container>
     </>

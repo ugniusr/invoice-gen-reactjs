@@ -7,19 +7,28 @@ import Invoice from "../invoice/Invoice";
 import { FormProvider, useForm } from "react-hook-form";
 
 function InvoiceGeneratingForm({ title }) {
-  // const {
-  //   register,
-  //   handleSubmit,
-  //   watch,
-  //   formState: { errors },
-  // } = useForm();
-  const methods = useForm();
+  const methods = useForm({
+    defaultValues: {
+      clientIsVatPayer: "true",
+      clientCompanyName: "UAB Pirkikas",
+      clientCompanyAddress: "Tiesioji g. 1, Vilnius",
+      clientCountry: "PL",
+      serviceProviderIsVatPayer: "true",
+      serviceProviderCompanyName: "UAB Pardavikas",
+      serviceProviderCompanyAddress: "Kreivoji g. 2, Vilnius",
+      serviceProviderCountry: "PL",
+      nameOfServicePurchased: "Konsultacijos",
+      amount: 100,
+    },
+  });
   const [show, setShowInvoice] = useState(false);
-
+  const [invoiceData, setInvoiceData] = useState({});
   const handleClose = () => setShowInvoice(false);
+
   const handleShow = () => setShowInvoice(true);
   const onSubmit = (data) => {
     console.log(data);
+    setInvoiceData(data);
     handleShow();
   };
 
@@ -30,12 +39,12 @@ function InvoiceGeneratingForm({ title }) {
         <Form onSubmit={methods.handleSubmit(onSubmit)}>
           <CompanyDataInputGroup nameBase="client" title="Kliento duomenys" />
           <CompanyDataInputGroup
-            nameBase="service_provider"
+            nameBase="serviceProvider"
             title="Paslaugų tiekėjo duomenys"
           />
 
           <TextInput
-            name="name_of_service_purchased"
+            name="nameOfServicePurchased"
             label="Paslaugos pavadinimas"
             placeholder="pvz. Konsultacinės paslaugos"
           />
@@ -47,7 +56,7 @@ function InvoiceGeneratingForm({ title }) {
           </div>
         </Form>
       </FormProvider>
-      <Invoice show={show} onClose={handleClose} />
+      <Invoice show={show} onClose={handleClose} data={invoiceData} />
     </div>
   );
 }

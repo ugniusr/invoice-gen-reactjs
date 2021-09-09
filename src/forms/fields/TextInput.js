@@ -2,6 +2,7 @@ import React from "react";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import { useFormContext } from "react-hook-form";
+// import { defaultFormValues } from "../InvoiceGeneratingForm";
 import "./Input.css";
 
 function TextInput({ label, placeholder, name }) {
