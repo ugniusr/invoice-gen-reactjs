@@ -48,7 +48,7 @@ function CompanyDataInputGroup({
               type="radio"
               label="PVM mokėtojas"
               name={optionName}
-              id="radio1"
+              id={`radio1-${optionName}`}
             />
             <Form.Check
               {...register(optionName, { required: true })}
@@ -56,7 +56,7 @@ function CompanyDataInputGroup({
               type="radio"
               label="ne-PVM mokėtojas"
               name={optionName}
-              id="radio2"
+              id={`radio2-${optionName}`}
             />
           </Col>
         </Form.Group>
