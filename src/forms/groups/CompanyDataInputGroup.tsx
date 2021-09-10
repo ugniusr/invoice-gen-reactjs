@@ -4,7 +4,20 @@ import TextInput from "../fields/TextInput";
 import { useFormContext } from "react-hook-form";
 import CountryListSelectInput from "../fields/CountryListSelectInput";
 
-function CompanyDataInputGroup({ title, nameBase }) {
+enum VatStatus {
+  "Yes" = "Yes",
+  "No" = "No",
+}
+
+type CompanyDataInputGroupProps = {
+  title: string;
+  nameBase: string;
+};
+
+function CompanyDataInputGroup({
+  title,
+  nameBase,
+}: CompanyDataInputGroupProps) {
   const { register } = useFormContext();
   const optionName = `${nameBase}IsVatPayer`;
 
@@ -31,7 +44,7 @@ function CompanyDataInputGroup({ title, nameBase }) {
           <Col sm={9} className="py-2">
             <Form.Check
               {...register(optionName, { required: true })}
-              value={true}
+              value={VatStatus.Yes}
               type="radio"
               label="PVM mokėtojas"
               name={optionName}
@@ -39,7 +52,7 @@ function CompanyDataInputGroup({ title, nameBase }) {
             />
             <Form.Check
               {...register(optionName, { required: true })}
-              value={false}
+              value={VatStatus.No}
               type="radio"
               label="ne-PVM mokėtojas"
               name={optionName}

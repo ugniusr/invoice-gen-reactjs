@@ -2,11 +2,34 @@ import React, { useEffect, useState } from "react";
 import { Modal, Button, Container, Row, Col, Table } from "react-bootstrap";
 import { countryIsInEU, getVatRate } from "../lib/utils";
 
-function Invoice({ show, onClose, data }) {
+enum VatStatus {
+  "Yes" = "Yes",
+  "No" = "No",
+}
+type IInvoiceForm = {
+  clientIsVatPayer: VatStatus;
+  clientCompanyName: string;
+  clientCompanyAddress: string;
+  clientCountry: string;
+  serviceProviderIsVatPayer: VatStatus;
+  serviceProviderCompanyName: string;
+  serviceProviderCompanyAddress: string;
+  serviceProviderCountry: string;
+  nameOfServicePurchased: string;
+  amount: number;
+};
+
+type InvoiceProps = {
+  show: boolean;
+  onClose: () => any;
+  data: IInvoiceForm;
+};
+
+function Invoice({ show, onClose, data }: InvoiceProps) {
   const [vatRate, setVatRate] = useState(0);
   const [vatAmount, setVatAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  const isTrue = (str) => str === "true";
+  const isTrue = (status: VatStatus) => status === VatStatus.Yes;
 
   useEffect(() => {
     if (data === undefined || data === null) return;
@@ -24,19 +47,19 @@ function Invoice({ show, onClose, data }) {
       }
     }
     if (vatRateShouldBeApplied) {
-      async function fetchVat() {
+      const fetchVat = async () => {
         let vat = await getVatRate(data.clientCountry);
         console.log("data.clientCountry");
         console.log(data.clientCountry);
         console.log("vat fetched:");
         console.log(vat);
         setVatRate(vat);
-      }
+      };
       fetchVat();
-    }
-    return () => {
+    } else {
       setVatRate(0);
-    };
+      setVatAmount(0);
+    }
   }, [data]);
 
   useEffect(() => {

@@ -6,14 +6,31 @@ import CompanyDataInputGroup from "./groups/CompanyDataInputGroup";
 import Invoice from "../invoice/Invoice";
 import { FormProvider, useForm } from "react-hook-form";
 
+// type InvoiceGeneratingFormProps = {
+//   title: string;
+// };
+
+// interface IInvoiceForm {
+//   clientIsVatPayer: boolean;
+//   clientCompanyName: string;
+//   clientCompanyAddress: string;
+//   clientCountry: string;
+//   serviceProviderIsVatPayer: boolean;
+//   serviceProviderCompanyName: string;
+//   serviceProviderCompanyAddress: string;
+//   serviceProviderCountry: string;
+//   nameOfServicePurchased: string;
+//   amount: number;
+// }
+
 function InvoiceGeneratingForm({ title }) {
   const methods = useForm({
     defaultValues: {
-      clientIsVatPayer: "true",
+      clientIsVatPayer: "Yes",
       clientCompanyName: "UAB Pirkikas",
       clientCompanyAddress: "45 some street, Miestas #1",
       clientCountry: "PL",
-      serviceProviderIsVatPayer: "true",
+      serviceProviderIsVatPayer: "Yes",
       serviceProviderCompanyName: "UAB Pardavikas",
       serviceProviderCompanyAddress: "46 another street, Miestas #2",
       serviceProviderCountry: "PL",
@@ -54,8 +71,8 @@ function InvoiceGeneratingForm({ title }) {
             placeholder="pvz. 10000 EUR"
             validationObj={{
               validate: (value) =>
-                (!isNaN(value) && // check if string is a valid number
-                  !isNaN(parseFloat(value))) ||
+                // check if string is a valid number
+                !isNaN(parseFloat(value)) ||
                 "Šiame lauke galite įvesti tik skaičių. Kableliui naudokite tašką, pvz. 5.50",
             }}
           />

@@ -1,6 +1,10 @@
 import React from "react";
 
-function Header({ title }) {
+type HeaderProps = {
+  title: string;
+};
+
+function Header({ title }: HeaderProps) {
   return (
     <div>
       <div className="container-fluid bg-dark text-light p-4">

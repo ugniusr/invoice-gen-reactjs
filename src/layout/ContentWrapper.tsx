@@ -1,7 +1,11 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
-function ContentWrapper({ children }) {
+type ContentWrapperProps = {
+  children: React.ReactNode;
+};
+
+function ContentWrapper({ children }: ContentWrapperProps) {
   return (
     <div>
       <Container className="p-4 mx-0">

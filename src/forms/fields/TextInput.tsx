@@ -5,7 +5,19 @@ import { useFormContext } from "react-hook-form";
 // import { defaultFormValues } from "../InvoiceGeneratingForm";
 import "./Input.css";
 
-function TextInput({ label, placeholder, name, validationObj = {} }) {
+type TextInputProps = {
+  label: string;
+  placeholder: string;
+  name: string;
+  validationObj?: {};
+};
+
+function TextInput({
+  label,
+  placeholder,
+  name,
+  validationObj = {},
+}: TextInputProps) {
   const {
     register,
     formState: { errors },
