@@ -44,8 +44,15 @@ export async function getVatRate(alpha2Code) {
     },
   };
   return axios(config).then((response) => {
-    console.log("response.data.rates[0].standard_rate");
-    console.log(response.data.rates[0].standard_rate);
     return response.data.rates[0].standard_rate;
   });
+}
+
+export function fetchCountryList() {
+  return axios
+    .get("https://restcountries.eu/rest/v2/all?fields=name;alpha2Code")
+    .then((response) => {
+      console.log("Query was triggered");
+      return response;
+    });
 }

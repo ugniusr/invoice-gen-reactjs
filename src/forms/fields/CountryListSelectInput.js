@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Form, FloatingLabel } from "react-bootstrap";
 import { useFormContext } from "react-hook-form";
-import axios from "axios";
+import { useQuery } from "react-query";
+import { fetchCountryList } from "../../lib/utils";
 
 function CountryListSelectInput({ name }) {
   const { register } = useFormContext();
   const [apiCountryList, setApiCountryList] = useState([]);
 
+  const { data } = useQuery("countryList", fetchCountryList, {
+    refetchOnWindowFocus: false,
+  });
+
   useEffect(() => {
-    // populate the list of countries from an API
-    axios
-      .get("https://restcountries.eu/rest/v2/all?fields=name;alpha2Code")
-      .then((response) => {
-        setApiCountryList(response.data);
-      });
-  }, []);
+    if (data === undefined || data === null) return;
+    setApiCountryList(data.data);
+  }, [data]);
 
   return (
     <div>
       <FloatingLabel controlId="floatingSelectGrid" label="Valstybė">
         {Array.isArray(apiCountryList) && apiCountryList.length && (
-          <Form.Select {...register(name)} name={name}>
+          <Form.Select {...register(name, { required: true })} name={name}>
             {apiCountryList.map((country) => (
               <option key={country.alpha2Code} value={country.alpha2Code}>
                 {country.name}

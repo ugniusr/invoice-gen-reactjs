@@ -11,11 +11,11 @@ function InvoiceGeneratingForm({ title }) {
     defaultValues: {
       clientIsVatPayer: "true",
       clientCompanyName: "UAB Pirkikas",
-      clientCompanyAddress: "Tiesioji g. 1, Vilnius",
+      clientCompanyAddress: "45 some street, Miestas #1",
       clientCountry: "PL",
       serviceProviderIsVatPayer: "true",
       serviceProviderCompanyName: "UAB Pardavikas",
-      serviceProviderCompanyAddress: "Kreivoji g. 2, Vilnius",
+      serviceProviderCompanyAddress: "46 another street, Miestas #2",
       serviceProviderCountry: "PL",
       nameOfServicePurchased: "Konsultacijos",
       amount: 100,
@@ -48,7 +48,17 @@ function InvoiceGeneratingForm({ title }) {
             label="Paslaugos pavadinimas"
             placeholder="pvz. Konsultacinės paslaugos"
           />
-          <TextInput name="amount" label="Suma" placeholder="pvz. 10000 EUR" />
+          <TextInput
+            name="amount"
+            label="Suma"
+            placeholder="pvz. 10000 EUR"
+            validationObj={{
+              validate: (value) =>
+                (!isNaN(value) && // check if string is a valid number
+                  !isNaN(parseFloat(value))) ||
+                "Šiame lauke galite įvesti tik skaičių. Kableliui naudokite tašką, pvz. 5.50",
+            }}
+          />
           <div className="py-3">
             <Button size="lg" type="submit">
               Generuoti sąskaitą

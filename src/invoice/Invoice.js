@@ -4,10 +4,12 @@ import { countryIsInEU, getVatRate } from "../lib/utils";
 
 function Invoice({ show, onClose, data }) {
   const [vatRate, setVatRate] = useState(0);
+  const [vatAmount, setVatAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const isTrue = (str) => str === "true";
 
   useEffect(() => {
+    if (data === undefined || data === null) return;
     let vatRateShouldBeApplied = false;
     /**
      * a number of conditions to check if VAT should be applied
@@ -24,17 +26,31 @@ function Invoice({ show, onClose, data }) {
     if (vatRateShouldBeApplied) {
       async function fetchVat() {
         let vat = await getVatRate(data.clientCountry);
-        console.log("vat");
+        console.log("data.clientCountry");
+        console.log(data.clientCountry);
+        console.log("vat fetched:");
         console.log(vat);
         setVatRate(vat);
       }
       fetchVat();
     }
+    return () => {
+      setVatRate(0);
+    };
   }, [data]);
 
   useEffect(() => {
-    setTotalAmount(data.amount + (vatRate * data.amount) / 100);
+    // Calculate the VAT cost, as soon as the VAT rate is known (or changed)
+    if (vatRate === 0 || data?.amount === undefined) return;
+    let vat = (vatRate / 100) * data.amount;
+    let vatRounded = Math.round(vat * 100) / 100;
+    setVatAmount(vatRounded);
   }, [vatRate, data.amount]);
+
+  useEffect(() => {
+    // Calculate the Total invoice amount, as soon as the VAT cost and the service costs are known (or changed)
+    setTotalAmount(Number(data.amount) + vatAmount);
+  }, [vatAmount, data.amount]);
 
   return (
     <div>
@@ -51,9 +67,12 @@ function Invoice({ show, onClose, data }) {
             <Row className="mb-5">
               <Col>
                 <p className="my-0">PARDAVĖJAS:</p>
-                <p className="my-0">{data && data.clientCompanyName}</p>
-                <p className="my-0">{data && data.clientCompanyAddress}</p>
-                <p className="my-0">Banko sąsk. nr.: </p>
+                <p className="my-0">
+                  {data && data.serviceProviderCompanyName}
+                </p>
+                <p className="my-0">
+                  {data && data.serviceProviderCompanyAddress}
+                </p>
               </Col>
               <Col>
                 <p className="my-0">PIRKĖJAS:</p>
@@ -75,14 +94,14 @@ function Invoice({ show, onClose, data }) {
                     <td>{data && data.amount + " EUR"}</td>
                   </tr>
                   <tr>
-                    <td>PVM ({vatRate && `${vatRate}`}%)</td>
-                    <td>{`${vatRate && totalAmount - data.amount} EUR`}</td>
+                    <td>PVM ({vatRate}%)</td>
+                    <td>{`${vatAmount} EUR`}</td>
                   </tr>
                   <tr>
                     <td className="text-end">
                       <strong>Iš viso:</strong>
                     </td>
-                    <td>{totalAmount && totalAmount + " EUR"}</td>
+                    <td>{`${totalAmount} EUR`}</td>
                   </tr>
                 </tbody>
               </Table>
