@@ -52,7 +52,26 @@ export function fetchCountryList() {
   return axios
     .get("https://restcountries.eu/rest/v2/all?fields=name;alpha2Code")
     .then((response) => {
-      console.log("Query was triggered");
       return response;
     });
 }
+
+const isTrue = (status) => status === "Yes";
+
+export function shouldVatBeAppliedForInvoice(
+  serviceProviderIsVatPayer,
+  serviceProviderCountry,
+  clientIsVatPayer,
+  clientCountry
+) {
+  /**
+   * a number of conditions to check if VAT should be applied
+   * */
+  if (!isTrue(serviceProviderIsVatPayer)) return false;
+  if (!countryIsInEU(clientCountry)) return false;
+  if (clientCountry !== serviceProviderCountry && isTrue(clientIsVatPayer))
+    return false;
+  return true;
+}
+
+export const roundTo2Decimals = (float) => Math.round(float * 100) / 100;

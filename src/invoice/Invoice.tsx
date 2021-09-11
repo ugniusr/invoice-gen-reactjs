@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Container, Row, Col, Table } from "react-bootstrap";
-import { countryIsInEU, getVatRate } from "../lib/utils";
+import {
+  shouldVatBeAppliedForInvoice,
+  getVatRate,
+  roundTo2Decimals,
+} from "../lib/utils";
 
 enum VatStatus {
   "Yes" = "Yes",
@@ -26,54 +30,73 @@ type InvoiceProps = {
 };
 
 function Invoice({ show, onClose, data }: InvoiceProps) {
+  const [vatRequired, setVatRequired] = useState(false);
   const [vatRate, setVatRate] = useState(0);
   const [vatAmount, setVatAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  const isTrue = (status: VatStatus) => status === VatStatus.Yes;
+
+  const {
+    serviceProviderIsVatPayer,
+    clientIsVatPayer,
+    clientCountry,
+    serviceProviderCountry,
+    serviceProviderCompanyName,
+    serviceProviderCompanyAddress,
+    clientCompanyName,
+    clientCompanyAddress,
+    nameOfServicePurchased,
+    amount,
+  } = data;
 
   useEffect(() => {
-    if (data === undefined || data === null) return;
-    let vatRateShouldBeApplied = false;
-    /**
-     * a number of conditions to check if VAT should be applied
-     * */
-    if (isTrue(data.serviceProviderIsVatPayer)) {
-      if (countryIsInEU(data.clientCountry)) {
-        if (data.clientCountry === data.serviceProviderCountry) {
-          vatRateShouldBeApplied = true;
-        } else {
-          if (!isTrue(data.clientIsVatPayer)) vatRateShouldBeApplied = true;
-        }
-      }
-    }
-    if (vatRateShouldBeApplied) {
-      const fetchVat = async () => {
-        let vat = await getVatRate(data.clientCountry);
-        console.log("data.clientCountry");
-        console.log(data.clientCountry);
-        console.log("vat fetched:");
-        console.log(vat);
-        setVatRate(vat);
+    // Check if VAT is required for the invoice
+    if (
+      !serviceProviderIsVatPayer ||
+      !serviceProviderCountry ||
+      !clientIsVatPayer ||
+      !clientCountry
+    )
+      return;
+    let status = shouldVatBeAppliedForInvoice(
+      serviceProviderIsVatPayer,
+      serviceProviderCountry,
+      clientIsVatPayer,
+      clientCountry
+    );
+
+    setVatRequired(status);
+  }, [
+    serviceProviderIsVatPayer,
+    serviceProviderCountry,
+    clientIsVatPayer,
+    clientCountry,
+  ]);
+
+  useEffect(() => {
+    if (!clientCountry) return;
+    // if VAT is necessary, set the VAT rate
+    if (vatRequired) {
+      const setVat = async () => {
+        setVatRate(await getVatRate(clientCountry));
       };
-      fetchVat();
+      setVat();
     } else {
       setVatRate(0);
       setVatAmount(0);
     }
-  }, [data]);
+  }, [vatRequired, clientCountry]);
 
   useEffect(() => {
-    // Calculate the VAT cost, as soon as the VAT rate is known (or changed)
-    if (vatRate === 0 || data?.amount === undefined) return;
-    let vat = (vatRate / 100) * data.amount;
-    let vatRounded = Math.round(vat * 100) / 100;
-    setVatAmount(vatRounded);
-  }, [vatRate, data.amount]);
+    // Calculate the VAT cost, given the VAT rate
+    if (!amount) return;
+    setVatAmount(roundTo2Decimals(vatRate / 100) * amount);
+  }, [vatRate, amount]);
 
   useEffect(() => {
-    // Calculate the Total invoice amount, as soon as the VAT cost and the service costs are known (or changed)
-    setTotalAmount(Number(data.amount) + vatAmount);
-  }, [vatAmount, data.amount]);
+    if (!amount) return;
+    // Calculate the Total invoice amount
+    setTotalAmount(Number(amount) + vatAmount);
+  }, [vatAmount, amount]);
 
   return (
     <div>
@@ -90,17 +113,13 @@ function Invoice({ show, onClose, data }: InvoiceProps) {
             <Row className="mb-5">
               <Col>
                 <p className="my-0">PARDAVĖJAS:</p>
-                <p className="my-0">
-                  {data && data.serviceProviderCompanyName}
-                </p>
-                <p className="my-0">
-                  {data && data.serviceProviderCompanyAddress}
-                </p>
+                <p className="my-0">{serviceProviderCompanyName}</p>
+                <p className="my-0">{serviceProviderCompanyAddress}</p>
               </Col>
               <Col>
                 <p className="my-0">PIRKĖJAS:</p>
-                <p className="my-0">{data && data.clientCompanyName}</p>
-                <p className="my-0">{data && data.clientCompanyAddress}</p>
+                <p className="my-0">{clientCompanyName}</p>
+                <p className="my-0">{clientCompanyAddress}</p>
               </Col>
             </Row>
             <Row>
@@ -113,8 +132,8 @@ function Invoice({ show, onClose, data }: InvoiceProps) {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{data && data.nameOfServicePurchased}</td>
-                    <td>{data && data.amount + " EUR"}</td>
+                    <td>{nameOfServicePurchased}</td>
+                    <td>{amount + " EUR"}</td>
                   </tr>
                   <tr>
                     <td>PVM ({vatRate}%)</td>
