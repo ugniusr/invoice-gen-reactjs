@@ -22,18 +22,17 @@ function CountryListSelectInput({ name }: CountryListSelectInputProps) {
   });
 
   const populateCountryDropdown = () => {
-    return (
-      apiCountryList.length &&
-      apiCountryList.map((country) => (
-        <option key={country.alpha2Code} value={country.alpha2Code}>
-          {country.name}
-        </option>
-      ))
-    );
+    if (!apiCountryList.length) return;
+    return apiCountryList.map((country) => (
+      <option key={country.alpha2Code} value={country.alpha2Code}>
+        {country.name}
+      </option>
+    ));
   };
 
   useEffect(() => {
-    if (data === undefined || data === null) return;
+    // once a list of countries is fetched, save it in state
+    if (!data) return;
     setApiCountryList(data.data);
   }, [data]);
 
